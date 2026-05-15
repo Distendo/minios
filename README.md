@@ -91,7 +91,7 @@ apt install build-essential nasm qemu-system-x86
 ## Building
 
 ```bash
-git clone <repo-url> minios
+git clone https://github.com/Distendo/minios
 cd minios
 make
 ```
@@ -205,3 +205,5 @@ Settings are persisted to `/settings.cfg` in the filesystem:
 - `boot_anim` — 0=skip, 1=show boot animation
 - `anim_speed` — 1=slow, 2=medium, 3=fast
 - `desktop_env` — 0=Default DE, 1=Pixel DE
+
+EVERYTHING MAKED BY **DISTENDO**
