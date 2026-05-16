@@ -1,7 +1,7 @@
 # minios
 
 
-![Logo](./logo.png)
+<p align="center"><img src="image.png" /></p>
 
 A minimal UNIX-like x86 operating system with a graphical window manager, filesystem, networking stack, and onboard applications — all running in 32-bit protected mode.
 
