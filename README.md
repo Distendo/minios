@@ -96,7 +96,7 @@ apt install build-essential nasm qemu-system-x86
 ```bash
 git clone https://github.com/Distendo/minios
 cd minios
-make
+make run
 ```
 
 This produces `minios.bin` — a Multiboot-compliant kernel image.
@@ -105,13 +105,13 @@ This produces `minios.bin` — a Multiboot-compliant kernel image.
 
 ### Direct boot (QEMU)
 ```bash
-qemu-system-i386 -kernel minios.bin -m 64 -vga std -nic user,model=rtl8139
+qemu-system-i386 -kernel minios.bin -m 64 -vga std -nic user
 ```
 
 ### With a filesystem image
 ```bash
 qemu-system-i386 -kernel minios.bin -m 64 -vga std \
-  -nic user,model=rtl8139 \
+  -nic user \
   -drive file=disk.img,format=raw,if=ide
 ```
 
