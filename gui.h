@@ -18,5 +18,8 @@ void gui_cursor_show(void);
 void gui_drag_start(const char *name);
 const char *gui_drag_file(void);
 void gui_set_window_title(int id, const char *title);
+void gui_term_set_cursor_col(int col);
+int gui_term_get_cursor_col(void);
+void gui_term_write_cmd(const char *buf, int len);
 
 #endif
