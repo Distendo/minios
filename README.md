@@ -2,7 +2,7 @@
 
 
 <p align="center"><img src="logo.png" /></p>
-** <p align="center">minios</p> **
+<p align="center">minios</p>
 A minimal UNIX-like x86 operating system with a graphical window manager, filesystem, networking stack, and onboard applications — all running in 32-bit protected mode.
 
 ![Boot animation](https://img.shields.io/badge/arch-x86%20%2832--bit%29-blue)
