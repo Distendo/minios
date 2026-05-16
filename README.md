@@ -68,9 +68,10 @@ Features command history (16 entries, up/down arrows), mid-line editing (left/ri
 - **Window compositing** with z-ordering, shadows, drag indicators
 - **Syntax highlighting** in Notepad for C, Python, and shell files
 
-## Screenshots
+## Some Screenshots
 
-*(Add screenshots of GUI desktop, terminal, notepad, and Pixel DE here)*
+<p align="left"><img src="screenshot1.png" /></p>
+<p align="right"><img src="screenshot2.png" /></p>
 
 ## Build Requirements
 
