@@ -2,6 +2,7 @@
 
 
 ![Logo](./logo.png)
+
 A minimal UNIX-like x86 operating system with a graphical window manager, filesystem, networking stack, and onboard applications — all running in 32-bit protected mode.
 
 ![Boot animation](https://img.shields.io/badge/arch-x86%20%2832--bit%29-blue)
