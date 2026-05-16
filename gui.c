@@ -481,6 +481,31 @@ void gui_term_clear(void) {
     term_clear(&wins[tid]);
 }
 
+void gui_term_set_cursor_col(int col) {
+    int tid = term_win_id();
+    if (tid >= 0 && col >= 0 && col < TERM_COLS)
+        wins[tid].buf_col = col;
+}
+
+int gui_term_get_cursor_col(void) {
+    int tid = term_win_id();
+    if (tid < 0) return 0;
+    return wins[tid].buf_col;
+}
+
+void gui_term_write_cmd(const char *buf, int len) {
+    int tid = term_win_id();
+    if (tid < 0) return;
+    window_t *w = &wins[tid];
+    int col = 2;
+    int max = TERM_COLS - col;
+    if (len > max) len = max;
+    for (int i = 0; i < len; i++)
+        w->buf[w->buf_row][col + i] = buf[i];
+    for (int i = col + len; i < TERM_COLS; i++)
+        w->buf[w->buf_row][i] = ' ';
+}
+
 int gui_create_window(int x, int y, int w, int h, const char *title) {
     if (num_wins >= MAX_WINS) return -1;
     window_t *win = &wins[num_wins];
@@ -727,12 +752,23 @@ void gui_poll(void) {
         do_redraw();
     }
 
-    {
-        static int clock_tick;
-        clock_tick++;
-        if (clock_tick >= 100) {
-            clock_tick = 0;
+    if (drag_active) {
+        static int lx, ly;
+        if (mx != lx || my != ly) {
+            lx = mx; ly = my;
             do_redraw();
+        }
+    }
+
+    {
+        static int last_sec;
+        rtc_time_t now;
+        rtc_read_time(&now);
+        if (now.seconds != last_sec) {
+            last_sec = now.seconds;
+            if (cursor_visible) gui_cursor_hide();
+            draw_taskbar();
+            gui_cursor_show();
         }
     }
 
