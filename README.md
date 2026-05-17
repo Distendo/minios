@@ -88,7 +88,7 @@ brew install i686-elf-gcc nasm qemu
 
 On Debian/Ubuntu:
 ```bash
-apt install build-essential nasm qemu-system-x86
+apt install build-essential nasm qemu-system-i386
 # Install i686-elf-gcc from your distro or build from source
 ```
 
