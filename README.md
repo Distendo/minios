@@ -211,4 +211,4 @@ Settings are persisted to `/settings.cfg` in the filesystem:
 - `desktop_env` — 0=Default DE, 1=Pixel DE
 
 EVERYTHING MAKED BY **DISTENDO**
-Thanks to ![Cambodia Tech](https://www.tiktok.com/@grishenka_eshkere) for testing and finding bugs in system!
+Thanks to [Cambodia Tech](https://www.tiktok.com/@grishenka_eshkere) for testing and finding bugs in system!
