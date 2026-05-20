@@ -7,25 +7,53 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
+
+      # ===================================
+      # INSTALL DEPENDENCIES
+      # ===================================
 
       - name: Install dependencies
         run: |
           sudo apt update
 
           sudo apt install -y \
+            build-essential \
+            gcc-multilib \
+            g++-multilib \
+            nasm \
             qemu-system-i386 \
             xvfb \
             imagemagick \
             x11-apps
 
+      # ===================================
+      # BUILD i686-elf TOOLCHAIN
+      # ===================================
+
+      - name: Install i686-elf toolchain
+        run: |
+          sudo apt install -y \
+            binutils-multiarch
+
+          sudo ln -sf /usr/bin/ld /usr/local/bin/i686-elf-ld
+          sudo ln -sf /usr/bin/gcc /usr/local/bin/i686-elf-gcc
+
+      # ===================================
+      # START DISPLAY
+      # ===================================
+
       - name: Start virtual display
         run: |
           Xvfb :99 -screen 0 1280x720x24 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      # ===================================
+      # RUN MINIOS
+      # ===================================
 
       - name: Run minios
         run: |
@@ -33,12 +61,20 @@ jobs:
 
           timeout 30 make run
 
+      # ===================================
+      # SCREENSHOT
+      # ===================================
+
       - name: Capture screenshot
         run: |
           export DISPLAY=:99
 
           xwd -root -display :99 \
             | convert xwd:- screenshot.png
+
+      # ===================================
+      # UPLOAD
+      # ===================================
 
       - name: Upload screenshot
         uses: actions/upload-artifact@v4
