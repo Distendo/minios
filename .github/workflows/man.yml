@@ -1,25 +1,24 @@
-name: Linux VNC Desktop (ngrok)
+name: Linux GUI 
 
 on:
   workflow_dispatch:
 
 jobs:
-  vnc:
+  desktop:
     runs-on: ubuntu-latest
     timeout-minutes: 360
 
     steps:
-      - name: Install desktop + VNC
+      - name: Install desktop environment
         run: |
           sudo apt update
-
           sudo apt install -y \
             xfce4 xfce4-goodies \
             tightvncserver \
-            wget curl unzip
+            wget curl
 
       # =========================
-      # SET VNC PASSWORD
+      # VNC SETUP
       # =========================
 
       - name: Setup VNC
@@ -28,12 +27,6 @@ jobs:
           echo "123456" | vncpasswd -f > ~/.vnc/passwd
           chmod 600 ~/.vnc/passwd
 
-      # =========================
-      # START XFCE SESSION
-      # =========================
-
-      - name: Create VNC startup
-        run: |
           cat > ~/.vnc/xstartup << 'EOF'
           #!/bin/bash
           startxfce4 &
@@ -41,40 +34,35 @@ jobs:
 
           chmod +x ~/.vnc/xstartup
 
-      - name: Start VNC server
+      - name: Start VNC
         run: |
           vncserver :1 -geometry 1280x720 -depth 24
 
       # =========================
-      # INSTALL NGROK
+      # INSTALL PLAYIT.GG
       # =========================
 
-      - name: Install ngrok
+      - name: Install playit.gg
         run: |
-          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-          tar -xzf ngrok-v3-stable-linux-amd64.tgz
-          sudo mv ngrok /usr/local/bin/ngrok
+          curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+          echo "deb https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit.list
+          sudo apt update
+          sudo apt install -y playit
 
       # =========================
-      # CONNECT NGROK
+      # START PLAYIT AGENT
       # =========================
 
-      - name: Start ngrok tunnel
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+      - name: Start playit tunnel
         run: |
-          ngrok config add-authtoken $NGROK_AUTH_TOKEN
-          ngrok tcp 5901 &
-          
-          sleep 5
-
-          curl -s http://127.0.0.1:4040/api/tunnels || true
+          playit &
+          sleep 10
 
       # =========================
-      # KEEP ALIVE
+      # KEEP SESSION ALIVE
       # =========================
 
-      - name: Keep session alive
+      - name: Keep running
         run: |
-          echo "VNC running on port 5901 via ngrok"
+          echo "Desktop + VNC + playit running"
           sleep 21600
