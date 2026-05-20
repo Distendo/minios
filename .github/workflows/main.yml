@@ -1,22 +1,22 @@
-name: minios Tester
+name: minios testing
 
 on:
   workflow_dispatch:
   push:
 
 jobs:
-  test:
+  gui-test:
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
 
-      # ===================================
+      # =========================================
       # INSTALL DEPENDENCIES
-      # ===================================
+      # =========================================
 
-      - name: Install dependencies
+      - name: Install packages
         run: |
           sudo apt update
 
@@ -30,40 +30,60 @@ jobs:
             imagemagick \
             x11-apps
 
-      # ===================================
-      # BUILD i686-elf TOOLCHAIN
-      # ===================================
+      # =========================================
+      # FIX i686-elf TOOLS
+      # =========================================
 
-      - name: Install i686-elf toolchain
+      - name: Setup fake i686-elf toolchain
         run: |
-          sudo apt install -y \
-            binutils-multiarch
-
-          sudo ln -sf /usr/bin/ld /usr/local/bin/i686-elf-ld
           sudo ln -sf /usr/bin/gcc /usr/local/bin/i686-elf-gcc
+          sudo ln -sf /usr/bin/ld /usr/local/bin/i686-elf-ld
 
-      # ===================================
-      # START DISPLAY
-      # ===================================
+      # =========================================
+      # PATCH MAKEFILE
+      # =========================================
 
-      - name: Start virtual display
+      - name: Force 32-bit linker mode
+        run: |
+          sed -i 's/i686-elf-ld /i686-elf-ld -m elf_i386 /' Makefile
+
+      # =========================================
+      # START VIRTUAL DISPLAY
+      # =========================================
+
+      - name: Start X11 framebuffer
         run: |
           Xvfb :99 -screen 0 1280x720x24 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
-      # ===================================
-      # RUN MINIOS
-      # ===================================
+      # =========================================
+      # BUILD OS
+      # =========================================
 
-      - name: Run minios
+      - name: Build minios
+        run: |
+          make
+
+      # =========================================
+      # RUN QEMU
+      # =========================================
+
+      - name: Start minios GUI
         run: |
           export DISPLAY=:99
 
-          timeout 30 make run
+          timeout 25 qemu-system-i386 \
+            -kernel minios.bin \
+            -m 128M \
+            -vga std \
+            -rtc base=localtime \
+            -nic user,model=rtl8139 &
+          
+          sleep 15
 
-      # ===================================
-      # SCREENSHOT
-      # ===================================
+      # =========================================
+      # TAKE SCREENSHOT
+      # =========================================
 
       - name: Capture screenshot
         run: |
@@ -72,12 +92,12 @@ jobs:
           xwd -root -display :99 \
             | convert xwd:- screenshot.png
 
-      # ===================================
-      # UPLOAD
-      # ===================================
+      # =========================================
+      # UPLOAD SCREENSHOT
+      # =========================================
 
       - name: Upload screenshot
         uses: actions/upload-artifact@v4
         with:
-          name: minios-screenshot
+          name: minios-gui-screenshot
           path: screenshot.png
