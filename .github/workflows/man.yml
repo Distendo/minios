@@ -1,4 +1,4 @@
-name: Linux GUI 
+name: Linux GUI
 
 on:
   workflow_dispatch:
@@ -12,10 +12,12 @@ jobs:
       - name: Install desktop environment
         run: |
           sudo apt update
+
           sudo apt install -y \
             xfce4 xfce4-goodies \
             tightvncserver \
-            wget curl
+            wget curl \
+            dbus-x11
 
       # =========================
       # VNC SETUP
@@ -24,39 +26,48 @@ jobs:
       - name: Setup VNC
         run: |
           mkdir -p ~/.vnc
+
           echo "123456" | vncpasswd -f > ~/.vnc/passwd
           chmod 600 ~/.vnc/passwd
 
           cat > ~/.vnc/xstartup << 'EOF'
           #!/bin/bash
+          unset SESSION_MANAGER
+          unset DBUS_SESSION_BUS_ADDRESS
           startxfce4 &
           EOF
 
           chmod +x ~/.vnc/xstartup
 
-      - name: Start VNC
+      - name: Start VNC server
         run: |
           vncserver :1 -geometry 1280x720 -depth 24
 
       # =========================
-      # INSTALL PLAYIT.GG
+      # INSTALL PLAYIT
       # =========================
 
       - name: Install playit.gg
         run: |
           curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
           echo "deb https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit.list
+
           sudo apt update
           sudo apt install -y playit
 
       # =========================
-      # START PLAYIT AGENT
+      # FIX PERMISSIONS + START PLAYIT
       # =========================
 
-      - name: Start playit tunnel
+      - name: Start playit tunnel (FIXED)
         run: |
-          playit &
+          # FIX: bypass IPC permission issue safely in CI
+          sudo playit > playit.log 2>&1 &
+
           sleep 10
+
+          echo "PLAYIT LOG:"
+          cat playit.log || true
 
       # =========================
       # KEEP SESSION ALIVE
@@ -64,5 +75,5 @@ jobs:
 
       - name: Keep running
         run: |
-          echo "Desktop + VNC + playit running"
+          echo "VNC + playit running..."
           sleep 21600
